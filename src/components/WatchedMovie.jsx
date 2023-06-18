@@ -1,4 +1,4 @@
-export function WatchedMovie({ movie }) {
+export function WatchedMovie({ movie, onRemoveMovie }) {
   return (
     <li>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
@@ -17,6 +17,12 @@ export function WatchedMovie({ movie }) {
           <span>{movie.Runtime} min</span>
         </p>
       </div>
+      <button
+        className='btn-delete'
+        onClick={() => onRemoveMovie(movie.imdbID)}
+      >
+        X
+      </button>
     </li>
   );
 }
