@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react";
 import StarRating from "../StarRating";
-const MovieDetails = ({
-  selectedId,
-  onClose,
-  onAddMovie,
-  watched,
-
-}) => {
+const MovieDetails = ({ selectedId, onClose, onAddMovie, watched }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [movie, setMovie] = useState({});
@@ -32,6 +26,7 @@ const MovieDetails = ({
   useEffect(() => {
     const fetchMovieDetails = async () => {
       setIsLoading(true);
+      
       try {
         const res = await fetch(
           `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`
@@ -48,6 +43,14 @@ const MovieDetails = ({
     };
     fetchMovieDetails();
   }, [selectedId]);
+  useEffect(() => {
+    if (!Title) return;
+    document.title = Title;
+    return () => {
+      document.title = "Use_Popcorn";
+      console.log(`cleanup ${Title}`);
+    };
+  }, [Title]);
   const handleAddMovie = () => {
     const newWatchedMovie = {
       imdbID: selectedId,

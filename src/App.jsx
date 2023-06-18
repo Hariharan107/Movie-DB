@@ -11,40 +11,56 @@ import MovieDetails from "./components/MovieDetails";
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [selectedId, setSelectedId] = useState("tt1375666");
+  const [selectedId, setSelectedId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [query, setQuery] = useState("inception");
-  const [error, setIsError] = useState(null);
-  const API_KEY = "55f4fc6a";
+  const [query, setQuery] = useState("");
+  const [error, setError] = useState("");
 
+  const KEY = "55f4fc6a";
   useEffect(() => {
+    const controller = new AbortController();
     const fetchMovies = async () => {
-      setIsError(null);
-      setIsLoading(true);
       try {
+        setIsLoading(true);
+        setError("");
+
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+          { signal: controller.signal }
         );
-        if (!res.ok) throw new Error("Something went wrong");
+
+        if (!res.ok)
+          throw new Error("Something went wrong with fetching movies");
+
         const data = await res.json();
-        // console.log(data);
-        if (data.Response === "False") {
-          throw new Error("Movie not found");
-        }
+        if (data.Response === "False") throw new Error("Movie not found");
+
         setMovies(data.Search);
+        setError("");
       } catch (err) {
-        setIsError(err.message);
+        if (err.name !== "AbortError") {
+          console.log(err.message);
+          setError(err.message);
+        }
       } finally {
         setIsLoading(false);
       }
     };
+
     if (query.length < 3) {
       setMovies([]);
-      setIsError(null);
+      setError("");
       return;
     }
+
+    handleCloseMovie();
     fetchMovies();
+
+    return function () {
+      controller.abort();
+    };
   }, [query]);
+
   const handleSelectMovie = (movieId) => {
     setSelectedId((selectedId) => (movieId === selectedId ? null : movieId));
   };
@@ -68,10 +84,12 @@ export default function App() {
       <Main>
         <Box>
           {isLoading && <p className='loader'>Loading...</p>}
-          {!isLoading && !error && (
-            <MovieList movies={movies} onSelectedMovie={handleSelectMovie} />
-          )}
           {error && <p className='error'>{error}</p>}
+          {!isLoading && !error && movies.length > 0 ? (
+            <MovieList movies={movies} onSelectedMovie={handleSelectMovie} />
+          ) : (
+            <p className='error'>Search your Movies</p>
+          )}
         </Box>
         <Box>
           {selectedId ? (
