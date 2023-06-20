@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "../StarRating";
 const MovieDetails = ({ selectedId, onClose, onAddMovie, watched }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [movie, setMovie] = useState({});
-
+  // const userRatingDecisions = useRef(0);
   const API_KEY = "55f4fc6a";
   const {
     Title,
@@ -26,7 +26,7 @@ const MovieDetails = ({ selectedId, onClose, onAddMovie, watched }) => {
   useEffect(() => {
     const fetchMovieDetails = async () => {
       setIsLoading(true);
-      
+
       try {
         const res = await fetch(
           `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`
@@ -60,9 +60,13 @@ const MovieDetails = ({ selectedId, onClose, onAddMovie, watched }) => {
       userRating: rating,
       Runtime: +Runtime.split(" ").at(0),
       imdbRating: +imdbRating,
+      // userRatingDecisions: userRatingDecisions.current,
     };
     onAddMovie(newWatchedMovie);
   };
+  // useEffect(() => {
+  //   if (rating) userRatingDecisions.current++;
+  // }, [rating]);
   return (
     <div className='details'>
       {isLoading ? (
