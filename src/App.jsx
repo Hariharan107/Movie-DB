@@ -9,21 +9,13 @@ import { WatchedMoviesList } from "./components/WatchedMoviesList";
 import MovieDetails from "./components/MovieDetails";
 import { useMovies } from "./components/custom/useMovies";
 import { useCallback } from "react";
+import { useLocalStorageState } from "./components/custom/useLocalStorageState";
 export default function App() {
   const [query, setQuery] = useState("");
-  // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useState(() =>
-    JSON.parse(localStorage.getItem("watched"))
-  );
+  const [watched, setWatched] = useLocalStorageState([], "watched");
   const [selectedId, setSelectedId] = useState("");
-  5;
-
   const handleCloseMovie = useCallback(() => setSelectedId(null), []);
   const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
-
-  useEffect(() => {
-    localStorage.setItem("watched", JSON.stringify(watched));
-  }, [watched]);
   const handleSelectMovie = (movieId) => {
     setSelectedId((selectedId) => (movieId === selectedId ? null : movieId));
   };
@@ -35,7 +27,6 @@ export default function App() {
   const handleRemoveWatchedMovie = (movieId) => {
     setWatched(watched.filter((movie) => movie.imdbID !== movieId));
   };
-
   return (
     <>
       <NavBar>
